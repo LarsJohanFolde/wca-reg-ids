@@ -1,7 +1,7 @@
 use reqwest;
 use serde_json::{self};
-use rust_iso3166;
 use std::env;
+mod country_names;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -42,25 +42,16 @@ async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::err
 
                 if let Some(name) = person["name"].as_str() {
                     if let Some(country_iso2) = person["countryIso2"].as_str() {
-                        // Kosovo er wack (Russland og Kina suger balle)
-                        if person["countryIso2"] == "XK" {
-                            println!("{}: {}, Kosovo",
-                                     person["registrantId"],
-                                     name);
-                        }
-
-                        if let Some(country) = rust_iso3166::from_alpha2(country_iso2) {
-                            println!("{}: {}, {}",
-                                     person["registrantId"],
-                                     name,
-                                     country.name);
-                        }
+                        println!("{}: {}, {}",
+                                 person["registrantId"],
+                                 name,
+                                 country_names::common_name(country_iso2));
                     }
                 }
             }
             // Count registered competitors by taking the amount of people minus the amount of
             // people not registered.
-            println!("\nTotal registrations: {}", persons.len() as u32 - null_count);
+            println!("\nTotal registrations: {}/{}", persons.len() as u32 - null_count, data["competitorLimit"]);
         } else {
             println!("'persons' field is not in the expected format or is missing.");
         }
