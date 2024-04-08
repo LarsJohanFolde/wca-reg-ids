@@ -9,14 +9,14 @@ use rust_iso3166;
 /// common_name("GB") -> "United Kingdom"
 /// common_name("XK") -> "Kosovo"
 /// ```
-pub fn common_name(country_iso2: &str) -> String {
-    match country_iso2 {
+pub fn common_name(iso2_string: &str) -> String {
+    match iso2_string {
         "GB" => "United Kingdom".to_string(),
         "RU" => "Russia".to_string(),
         "US" => "USA".to_string(),
         "KR" => "South Korea".to_string(),
         "KP" => "North Korea".to_string(),
         "XK" => "Kosovo".to_string(),
-        _ => format!("{}", rust_iso3166::from_alpha2(country_iso2).unwrap().name)
+        _ => format!("{}", rust_iso3166::from_alpha2(iso2_string).unwrap().name)
     }
 }
