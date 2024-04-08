@@ -6,6 +6,7 @@ mod country_names;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
+    //  TODO: Sanitize input
     let args: Vec<String> = env::args().collect();
     if args.len() == 2 {
         list_competitors(args[1].to_string()).await?;
@@ -34,12 +35,13 @@ async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::err
             let mut null_count: u32 = 0;
             for person in persons {
 
-                // Remove people who are not registered
+                // Remove people who are not registered.
                 if format!("{}", person["registrantId"]) == "null" {
                     null_count += 1;
                     continue;
                 }
 
+                // Print competitors to stdout.
                 if let Some(name) = person["name"].as_str() {
                     if let Some(country_iso2) = person["countryIso2"].as_str() {
                         println!("{}: {}, {}",
