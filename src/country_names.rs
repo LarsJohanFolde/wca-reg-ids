@@ -1,7 +1,14 @@
 use rust_iso3166;
 
-/// Returns the commonly used name of a country from a country ISO2 string
-/// This function also supports XK for Kosovo
+/// Returns the commonly used name of a country from a country ISO2 string.
+/// This function also supports XK for Kosovo.
+///
+/// # Example
+/// 
+/// ```rust 
+/// common_name("GB") -> "United Kingdom"
+/// common_name("XK") -> "Kosovo"
+/// ```
 pub fn common_name(country_iso2: &str) -> String {
     match country_iso2 {
         "GB" => "United Kingdom".to_string(),
