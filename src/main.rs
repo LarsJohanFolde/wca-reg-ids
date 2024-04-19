@@ -17,6 +17,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+#[derive(Debug)]
+struct Person {
+    id: u16,
+    name: String,
+    country_id: String,
+}
+
+fn create_person(id_as_string: String, name: String, country_id: String) -> Person {
+
+    Person {
+        id: id_as_string.parse().unwrap(),
+        name,
+        country_id
+    }
+}
 
 async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::error::Error>> {
     let formatted_url: String = format!("https://worldcubeassociation.org/api/v0/competitions/{}/wcif/public", competition_id);
@@ -35,21 +50,20 @@ async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::err
             let mut null_count: u32 = 0;
             for person in persons {
 
-                // Remove people who are not registered.
-                if format!("{}", person["registrantId"]) == "null" {
+                let id_as_string = person["registrantId"].to_string();
+
+                if format!("{id_as_string}") == "null" {
                     null_count += 1;
                     continue;
                 }
 
-                // Print competitors to stdout.
-                if let Some(name) = person["name"].as_str() {
-                    if let Some(country_iso2) = person["countryIso2"].as_str() {
-                        println!("{}: {}, {}",
-                                 person["registrantId"],
-                                 name,
-                                 country_names::common_name(country_iso2));
-                    }
-                }
+                let person = create_person(
+                    person["registrantId"].to_string(),
+                    person["name"].to_string().replace("\"", ""),
+                    country_names::common_name(&person["countryIso2"].as_str().unwrap()).to_string()
+                );
+
+                println!("{}: {}, {}", person.id, person.name, person.country_id);
             }
             // Count registered competitors by taking the amount of people minus the amount of
             // people not registered.
