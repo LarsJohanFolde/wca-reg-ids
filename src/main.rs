@@ -25,7 +25,6 @@ struct Person {
 }
 
 fn create_person(id_as_string: String, name: String, country_id: String) -> Person {
-
     Person {
         id: id_as_string.parse().unwrap(),
         name,
