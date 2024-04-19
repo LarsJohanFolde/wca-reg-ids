@@ -45,12 +45,14 @@ async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::err
             println!("\n----------------------------------\n");
             println!("Showing results for {}:\n", competition_name);
         }
+        // Create and print persons
         if let Some(persons) = data["persons"].as_array() {
             let mut null_count: u32 = 0;
             for person in persons {
 
                 let id_as_string = person["registrantId"].to_string();
 
+                // Remove non-competing organizers and delegates
                 if format!("{id_as_string}") == "null" {
                     null_count += 1;
                     continue;
