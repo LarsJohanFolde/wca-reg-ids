@@ -3,6 +3,8 @@ use serde_json::{self};
 use std::env;
 mod country_names;
 
+// TODO add information flag that prints competitioninfo such as whether reg is still open...
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
@@ -22,13 +24,15 @@ struct Person {
     id: u16,
     name: String,
     country_id: String,
+    is_competing: bool,
 }
 
-fn create_person(id_as_string: String, name: String, country_id: String) -> Person {
+fn create_person(id_as_string: String, name: String, country_id: String, is_competing: bool) -> Person {
     Person {
         id: id_as_string.parse().unwrap(),
         name,
-        country_id
+        country_id,
+        is_competing
     }
 }
 
@@ -48,22 +52,25 @@ async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::err
             let mut non_competing_persons: u16 = 0;
             for person in persons {
 
-                let id_as_string = person["registrantId"].to_string();
-
-                // Remove non-competing organizers and delegates
-                if format!("{id_as_string}") == "null" {
-                    non_competing_persons += 1;
-                    continue;
-                }
+                let registration = &person["registration"];
+                let is_competing: bool = registration["isCompeting"].as_bool().unwrap();
 
                 let person = create_person(
                     person["registrantId"].to_string(),
                     person["name"].to_string().replace("\"", ""),
-                    country_names::common_name(&person["countryIso2"].as_str().unwrap()).to_string()
+                    country_names::common_name(&person["countryIso2"].as_str().unwrap()).to_string(),
+                    is_competing
                 );
+
+                // Remove non-competing organizers and delegates
+                if person.is_competing == false {
+                    non_competing_persons += 1;
+                    continue;
+                }
 
                 println!("{}: {}, {}", person.id, person.name, person.country_id);
             }
+
             // Count registered competitors by taking the amount of people minus the amount of
             // people not registered.
             let competitor_count: u16 = persons.len() as u16 - non_competing_persons;
