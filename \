@@ -24,7 +24,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 #[derive(Debug)]
 struct Person {
     id: u16,
-    wca_id: String,
     name: String,
     country_id: String,
     is_competing: bool,
@@ -33,14 +32,12 @@ struct Person {
 fn create_person(
     id_as_string: String,
     name: String,
-    wca_id: String,
     country_id: String,
     is_competing: bool,
 ) -> Person {
     Person {
         id: id_as_string.parse().unwrap(),
         name,
-        wca_id,
         country_id,
         is_competing,
     }
@@ -62,21 +59,22 @@ async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::err
         println!("Showing results for {}:\n", competition_name);
         // Create and print persons
         if let Some(persons) = data["persons"].as_array() {
-            let mut non_competing_persons: usize = 0;
-            let mut first_timers: u32 = 0;
+            let mut non_competing_persons: u16 = 0;
             for person in persons {
                 if format!("{}", person["registration"]).as_str() == "null" {
                     non_competing_persons += 1;
                     continue;
                 }
 
+                let registration = &person["registration"];
+                let is_competing: bool = registration["isCompeting"].as_bool().unwrap();
+
                 let person = create_person(
                     person["registrantId"].to_string(),
                     person["name"].to_string().replace("\"", ""),
-                    person["wcaId"].to_string().replace("\"", ""),
                     country_names::common_name(&person["countryIso2"].as_str().unwrap())
                         .to_string(),
-                    person["registration"]["isCompeting"].as_bool().unwrap(),
+                    registration["isCompeting"].as_bool().unwrap(),
                 );
 
                 // Remove non-competing organizers and delegates
@@ -84,21 +82,13 @@ async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::err
                     non_competing_persons += 1;
                     continue;
                 }
-                
-                let mut output: String = format!("{}: {}, {}", person.id, person.name, person.country_id);
 
-                // Mark and count first-time competitors
-                if person.wca_id == "null" {
-                    output.push_str(" (First-Timer)");
-                    first_timers += 1;
-                }
-
-                println!("{}", output);
+                println!("{}: {}, {}", person.id, person.name, person.country_id);
             }
 
             // Count registered competitors by taking the amount of people minus the amount of
             // people not registered.
-            let competitor_count: usize = persons.len() - non_competing_persons;
+            let competitor_count: u16 = persons.len() as u16 - non_competing_persons;
 
             // Print a message if there are no competitors
             if competitor_count <= 0 {
@@ -109,7 +99,6 @@ async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::err
                 "\nTotal registrations: {}/{}",
                 competitor_count, data["competitorLimit"]
             );
-            println!("First-time competitors: {}", first_timers);
         } else {
             println!("'persons' field is not in the expected format or is missing.");
         }

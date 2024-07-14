@@ -4,8 +4,8 @@ use rust_iso3166;
 /// This function also supports XK for Kosovo.
 ///
 /// # Example
-/// 
-/// ```rust 
+///
+/// ```rust
 /// common_name("GB") -> "United Kingdom"
 /// common_name("XK") -> "Kosovo"
 /// ```
@@ -17,6 +17,6 @@ pub fn common_name(iso2_string: &str) -> String {
         "KR" => "South Korea".to_string(),
         "KP" => "North Korea".to_string(),
         "XK" => "Kosovo".to_string(),
-        _ => format!("{}", rust_iso3166::from_alpha2(iso2_string).unwrap().name)
+        _ => format!("{}", rust_iso3166::from_alpha2(iso2_string).unwrap().name),
     }
 }
