@@ -2,6 +2,7 @@ use reqwest;
 use serde_json::{self};
 use std::env;
 mod country_names;
+mod person;
 
 // TODO add information flag that prints competitioninfo such as whether reg is still open...
 
@@ -19,31 +20,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         args.len() - 1
     );
     Ok(())
-}
-
-#[derive(Debug)]
-struct Person {
-    id: u16,
-    wca_id: String,
-    name: String,
-    country_id: String,
-    is_competing: bool,
-}
-
-fn create_person(
-    id_as_string: String,
-    name: String,
-    wca_id: String,
-    country_id: String,
-    is_competing: bool,
-) -> Person {
-    Person {
-        id: id_as_string.parse().unwrap(),
-        name,
-        wca_id,
-        country_id,
-        is_competing,
-    }
 }
 
 async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::error::Error>> {
@@ -70,7 +46,7 @@ async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::err
                     continue;
                 }
 
-                let person = create_person(
+                let person = person::new(
                     person["registrantId"].to_string(),
                     person["name"].to_string().replace("\"", ""),
                     person["wcaId"].to_string().replace("\"", ""),
