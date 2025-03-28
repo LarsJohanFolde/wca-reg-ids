@@ -32,8 +32,8 @@ impl Person {
     pub fn from(data: &Value) -> Option<Self> {
         Some(Self {
             id: data["registrantId"].to_string(),
-            name: data["name"].to_string().replace("\"", ""),
-            wca_id: data["wcaId"].to_string().replace("\"", ""),
+            name: data["name"].to_string().replace('\"', ""),
+            wca_id: data["wcaId"].to_string().replace('\"', ""),
             country_id: country_names::common_name(data["countryIso2"].as_str().unwrap()).to_string(),
             is_competing: data["registration"]["isCompeting"].as_bool().unwrap_or(false),
         })

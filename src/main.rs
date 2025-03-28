@@ -42,9 +42,10 @@ async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::err
 
     let competition_name = data["name"]
         .to_string()
-        .replace("\"", "");
+        .replace('\"', "");
 
-    println!("\n----------------------------------\n");
+    print!("\x1B[1A");
+    print!("\r");
     println!("Showing results for {}:\n", competition_name);
 
     let registrants: Vec<Person> = data["persons"]
@@ -56,7 +57,7 @@ async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::err
 
     let first_timers = registrants
         .iter()
-        .filter(|r| r.wca_id == "null")
+        .filter(|r| r.wca_id == "null" && r.is_competing)
         .count();
 
     let total_registrants = registrants
