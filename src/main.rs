@@ -44,8 +44,8 @@ async fn list_competitors(competition_id: String) -> Result<(), Box<dyn std::err
         .to_string()
         .replace('\"', "");
 
-    print!("\x1B[1A");
-    print!("\r");
+    print!("\x1B[1A");  // Move cursor up
+    print!("\r");       // Move cursor to the start of the line
     println!("Showing results for {}:\n", competition_name);
 
     let registrants: Vec<Person> = data["persons"]
